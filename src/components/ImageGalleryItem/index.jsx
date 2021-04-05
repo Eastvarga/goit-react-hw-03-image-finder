@@ -7,11 +7,12 @@ import {
 class ImageGalleryItem extends Component {
   render() {
     return (
-      <li className={ImageGalleryItemStyle}>
+      <li id={this.props.id} className={ImageGalleryItemStyle}>
         <img
           src={this.props.url}
           alt={this.props.url}
           className={ImageGalleryItemImage}
+          data-set={this.props.modalUrl}
         />
       </li>
     );
