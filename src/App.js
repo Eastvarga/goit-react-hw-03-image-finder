@@ -1,7 +1,9 @@
 import { Component } from "react";
 import SearchBar from "./components/SearchBar";
 import ImageGallery from "./components/ImageGallery";
-
+import ImageGalleryItem from "./components/ImageGalleryItem";
+import Button from "./components/Button";
+import Modal from "./components/Modal";
 class App extends Component {
   state = {
     query: "",
@@ -14,7 +16,11 @@ class App extends Component {
     return (
       <div className="App">
         <SearchBar onSubmit={this.formSubmit} />
-        <ImageGallery />
+        <ImageGallery>
+          <ImageGalleryItem />
+        </ImageGallery>
+        <Button />
+        {/* <Modal /> */}
       </div>
     );
   }
