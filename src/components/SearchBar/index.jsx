@@ -7,9 +7,9 @@ import {
   SearchFormInput,
 } from "./styles.module.css";
 
-const INITIAL_STATE = {
-  query: "",
-};
+// const INITIAL_STATE = {
+//   query: "",
+// };
 
 class SearchBar extends Component {
   state = {
