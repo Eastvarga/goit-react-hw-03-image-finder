@@ -4,7 +4,11 @@ import { ButtonStyle } from "./styles.module.css";
 class Button extends Component {
   render() {
     return (
-        <button type="button" className={ButtonStyle}>
+      <button
+        type="button"
+        className={ButtonStyle}
+        onClick={() => this.props.onClick()}
+      >
         Load more
       </button>
     );
