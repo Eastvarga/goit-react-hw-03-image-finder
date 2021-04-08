@@ -1,11 +1,14 @@
+import { AppStyle } from "./styles.module.css";
 import React, { Component } from "react";
-import SearchBar from "./components/SearchBar";
-import ImageGallery from "./components/ImageGallery";
-import ImageGalleryItem from "./components/ImageGalleryItem";
-import Button from "./components/Button";
-import Modal from "./components/Modal";
-import fetchImages from "./components/services/image-api";
-
+import SearchBar from "../SearchBar";
+import ImageGallery from "../ImageGallery";
+import ImageGalleryItem from "../ImageGalleryItem";
+import Button from "../Button";
+import Modal from "../Modal";
+import fetchImages from "../services/image-api";
+// import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
+// import Loader from "react-loader-spinner";
+import LoaderApp from "../Loader";
 class App extends Component {
   constructor() {
     super();
@@ -16,8 +19,10 @@ class App extends Component {
     images: [],
     perPage: 9,
     page: 1,
-    largeImages: "",
+    modalImage: "",
     length: 0,
+    isLoading: false,
+    modalShow: false,
   };
   getSnapshotBeforeUpdate(prevProps, prevState) {
     // Добавляются ли в список новые элементы?
@@ -48,21 +53,10 @@ class App extends Component {
   componentDidUpdate(PrevProps, { query }, snapshot) {
     if (this.state.query !== query) {
       // console.log("componentDidUpdate state change?=", query !== one);
+      this.setState({ isLoading: true });
       fetchImages(this.state)
         .then(({ hits }) => {
-          // console.log(
-          //   "IF --this.listRef.current.scrollHeight",
-          //   this.listRef.current.scrollHeight
-          // );
-          // console.log(
-          //   "IF --this.listRef.current.scrollTop",
-          //   this.listRef.current.scrollTop
-          // );
-          // console.log(
-          //   "IF  componentDidUpdate --this.listRef.current.scrollHeight",
-          //   this.listRef.current.scrollHeight
-          // );
-
+         
           this.setState({
             images: [...this.state.images, ...hits],
             page: this.state.page + 1,
@@ -70,10 +64,14 @@ class App extends Component {
         })
         .then((data) => {
           const list = this.listRef.current;
-          this.setState({
-            length: list.scrollHeight,
-          });
-        });
+          console.log("list", list);
+          if (list.scrollHeight > 0) {
+            this.setState({
+              length: list.scrollHeight,
+            });
+          }
+        })
+        .finally(() => this.setState({ isLoading: false }));
     }
     console.log("componentDidUpdate inner snapshot", snapshot);
     if (snapshot !== null) {
@@ -95,11 +93,13 @@ class App extends Component {
         images: [],
         largeImages: "",
         length: 0,
+        isLoading: false,
       });
     }
   };
   getImagesHandler = () => {
     console.log("button pressed");
+    this.setState({ isLoading: true });
     fetchImages(this.state)
       .then(({ hits }) => {
         this.setState({
@@ -112,12 +112,19 @@ class App extends Component {
         this.setState({
           length: list.scrollHeight,
         });
-      });
+      })
+      .finally(() => this.setState({ isLoading: false }));
   };
-
+  onImageItemClick = (ItemUrl) => {
+    this.setState({ modalImage: ItemUrl });
+    this.toggleModal();
+  };
+  toggleModal = () => {
+    this.setState(({ modalShow }) => ({ modalShow: !modalShow }));
+  };
   render() {
     return (
-      <div className="App" ref={this.listRef}>
+      <div className="AppStyle" ref={this.listRef}>
         <SearchBar onSubmit={this.formSubmit} />
         <ImageGallery>
           {this.state.images.map(({ id, webformatURL, largeImageURL }) => (
@@ -126,13 +133,17 @@ class App extends Component {
               id={id}
               url={webformatURL}
               modalUrl={largeImageURL}
+              onClick={this.onImageItemClick}
             />
           ))}
         </ImageGallery>
-        {this.state.images.length > 0 && (
+        {this.state.isLoading && <LoaderApp />}
+        {this.state.images.length > 0 && !this.state.isLoading && (
           <Button onClick={this.getImagesHandler} />
         )}
-        {/* <Modal /> */}
+        {this.state.modalShow && (
+          <Modal url={this.state.modalImage} onClick={this.toggleModal} />
+        )}
       </div>
     );
   }
