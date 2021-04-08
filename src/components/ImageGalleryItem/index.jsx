@@ -12,7 +12,8 @@ class ImageGalleryItem extends Component {
           src={this.props.url}
           alt={this.props.url}
           className={ImageGalleryItemImage}
-          data-set={this.props.modalUrl}
+          // data-set={this.props.modalUrl}
+          onClick={() => this.props.onClick(this.props.modalUrl)}
         />
       </li>
     );
