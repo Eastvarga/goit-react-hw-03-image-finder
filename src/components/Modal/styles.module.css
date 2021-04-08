@@ -15,7 +15,10 @@
   z-index: 1200;
 }
 
-.Modal {
-  max-width: calc(100vw - 48px);
+.ModalStyle {
+  /* display: block; */
+  margin: auto;
+  max-width: calc(100vw - 84px);
   max-height: calc(100vh - 24px);
 }
+
