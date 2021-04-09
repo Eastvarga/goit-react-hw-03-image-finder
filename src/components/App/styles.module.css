@@ -7,3 +7,12 @@
   grid-gap: 16px;
   padding-bottom: 24px;
 }
+.errorMessage {
+  display: block;
+  padding: 0;
+  margin: 10px auto;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.24;
+  color: red;
+}

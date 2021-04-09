@@ -1,4 +1,4 @@
-import { AppStyle } from "./styles.module.css";
+import { AppStyle, errorMessage } from "./styles.module.css";
 import React, { Component } from "react";
 import SearchBar from "../SearchBar";
 import ImageGallery from "../ImageGallery";
@@ -6,8 +6,6 @@ import ImageGalleryItem from "../ImageGalleryItem";
 import Button from "../Button";
 import Modal from "../Modal";
 import fetchImages from "../services/image-api";
-// import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
-// import Loader from "react-loader-spinner";
 import LoaderApp from "../Loader";
 class App extends Component {
   constructor() {
@@ -20,33 +18,17 @@ class App extends Component {
     perPage: 9,
     page: 1,
     modalImage: "",
-    length: 0,
     isLoading: false,
     modalShow: false,
+    error: "",
   };
   getSnapshotBeforeUpdate(prevProps, prevState) {
     // Добавляются ли в список новые элементы?
     // Запоминаем значение прокрутки, чтобы использовать его позже.
-    if (prevState.length < this.state.length) {
-      // console.log(
-      //   "getSnapShot IF Active|| prevState.length < this.state.length",
-      //   prevState.length < this.state.length
-      // );
+    if (prevState.images.length < this.state.images.length) {
       const list = this.listRef.current;
       return list.scrollHeight - list.scrollTop;
     }
-    // console.log(
-    //   "getSnapShot IF NOT Active|| prevState.length < this.state.length",
-    //   prevState.length < this.state.length
-    // );
-    // console.log(
-    //   "IN getSnapshotBeforeUpdate prevState.length",
-    //   prevState.length
-    // );
-    // console.log(
-    //   "IN getSnapshotBeforeUpdate this.state.length",
-    //   this.state.length
-    // );
     return null;
   }
 
@@ -56,33 +38,23 @@ class App extends Component {
       this.setState({ isLoading: true });
       fetchImages(this.state)
         .then(({ hits }) => {
-         
           this.setState({
             images: [...this.state.images, ...hits],
             page: this.state.page + 1,
           });
         })
-        .then((data) => {
-          const list = this.listRef.current;
-          console.log("list", list);
-          if (list.scrollHeight > 0) {
-            this.setState({
-              length: list.scrollHeight,
-            });
-          }
+        .catch((error) => {
+          console.log("error", error);
+          this.setState({ error: true });
         })
         .finally(() => this.setState({ isLoading: false }));
     }
-    console.log("componentDidUpdate inner snapshot", snapshot);
+
     if (snapshot !== null) {
-      const list = this.listRef.current;
-      console.log("snapshot", snapshot);
-      console.log("list.scrollHeight", list.scrollHeight);
       window.scrollTo({
-        top: snapshot,
+        top: snapshot - 170,
         behavior: "smooth",
       });
-      this.setState({ length: list.scrollHeight });
     }
   }
   formSubmit = ({ query }) => {
@@ -91,14 +63,15 @@ class App extends Component {
         query: query,
         page: 1,
         images: [],
+        modalImage: "",
         largeImages: "",
-        length: 0,
         isLoading: false,
+        error: "",
       });
     }
   };
   getImagesHandler = () => {
-    console.log("button pressed");
+    // console.log("button pressed");
     this.setState({ isLoading: true });
     fetchImages(this.state)
       .then(({ hits }) => {
@@ -107,11 +80,9 @@ class App extends Component {
           page: this.state.page + 1,
         });
       })
-      .then((data) => {
-        const list = this.listRef.current;
-        this.setState({
-          length: list.scrollHeight,
-        });
+      .catch((error) => {
+        console.log(error);
+        this.setState({ error: true });
       })
       .finally(() => this.setState({ isLoading: false }));
   };
@@ -123,11 +94,19 @@ class App extends Component {
     this.setState(({ modalShow }) => ({ modalShow: !modalShow }));
   };
   render() {
+    const { error, images, isLoading, modalShow, modalImage } = this.state;
+    const willBeButtonShow = images.length > 0 && !isLoading && !error;
+
     return (
-      <div className="AppStyle" ref={this.listRef}>
+      <div className={AppStyle} ref={this.listRef}>
         <SearchBar onSubmit={this.formSubmit} />
+        {error && (
+          <p className={errorMessage}>
+            Oops, there was an unexpected error, please try again.
+          </p>
+        )}
         <ImageGallery>
-          {this.state.images.map(({ id, webformatURL, largeImageURL }) => (
+          {images.map(({ id, webformatURL, largeImageURL }) => (
             <ImageGalleryItem
               key={id}
               id={id}
@@ -137,13 +116,9 @@ class App extends Component {
             />
           ))}
         </ImageGallery>
-        {this.state.isLoading && <LoaderApp />}
-        {this.state.images.length > 0 && !this.state.isLoading && (
-          <Button onClick={this.getImagesHandler} />
-        )}
-        {this.state.modalShow && (
-          <Modal url={this.state.modalImage} onClick={this.toggleModal} />
-        )}
+        {isLoading && <LoaderApp />}
+        {willBeButtonShow && <Button onClick={this.getImagesHandler} />}
+        {modalShow && <Modal url={modalImage} onClick={this.toggleModal} />}
       </div>
     );
   }
