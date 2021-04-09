@@ -7,20 +7,24 @@ import Button from "../Button";
 import Modal from "../Modal";
 import fetchImages from "../services/image-api";
 import LoaderApp from "../Loader";
+
+const INITIAL_STATE = {
+  query: "",
+  images: [],
+  perPage: 9,
+  page: 1,
+  modalImage: "",
+  isLoading: false,
+  modalShow: false,
+  error: "",
+};
 class App extends Component {
   constructor() {
     super();
     this.listRef = React.createRef();
   }
   state = {
-    query: "",
-    images: [],
-    perPage: 9,
-    page: 1,
-    modalImage: "",
-    isLoading: false,
-    modalShow: false,
-    error: "",
+    ...INITIAL_STATE,
   };
   getSnapshotBeforeUpdate(prevProps, prevState) {
     // Добавляются ли в список новые элементы?
@@ -38,10 +42,11 @@ class App extends Component {
       this.setState({ isLoading: true });
       fetchImages(this.state)
         .then(({ hits }) => {
-          this.setState({
-            images: [...this.state.images, ...hits],
-            page: this.state.page + 1,
-          });
+          this.growthArrayOfImages(hits);
+          // this.setState({
+          //   images: [...this.state.images, ...hits],
+          //   page: this.state.page + 1,
+          // });
         })
         .catch((error) => {
           console.log("error", error);
@@ -57,28 +62,33 @@ class App extends Component {
       });
     }
   }
+
+  growthArrayOfImages(hits) {
+    this.setState({
+      images: [...this.state.images, ...hits],
+      page: this.state.page + 1,
+    });
+  }
+
   formSubmit = ({ query }) => {
     if (this.state.query !== query) {
       this.setState({
+        ...INITIAL_STATE,
         query: query,
-        page: 1,
-        images: [],
-        modalImage: "",
-        largeImages: "",
-        isLoading: false,
-        error: "",
       });
     }
   };
+
   getImagesHandler = () => {
     // console.log("button pressed");
     this.setState({ isLoading: true });
     fetchImages(this.state)
       .then(({ hits }) => {
-        this.setState({
-          images: [...this.state.images, ...hits],
-          page: this.state.page + 1,
-        });
+        this.growthArrayOfImages(hits);
+        // this.setState({
+        //   images: [...this.state.images, ...hits],
+        //   page: this.state.page + 1,
+        // });
       })
       .catch((error) => {
         console.log(error);
@@ -86,7 +96,7 @@ class App extends Component {
       })
       .finally(() => this.setState({ isLoading: false }));
   };
-  onImageItemClick = (ItemUrl) => {
+  ImageItemClickHandler = (ItemUrl) => {
     this.setState({ modalImage: ItemUrl });
     this.toggleModal();
   };
@@ -112,7 +122,7 @@ class App extends Component {
               id={id}
               url={webformatURL}
               modalUrl={largeImageURL}
-              onClick={this.onImageItemClick}
+              onClick={this.ImageItemClickHandler}
             />
           ))}
         </ImageGallery>

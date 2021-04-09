@@ -3,6 +3,7 @@ import {
   ImageGalleryItemStyle,
   ImageGalleryItemImage,
 } from "./styles.module.css";
+import PropTypes from "prop-types";
 
 class ImageGalleryItem extends Component {
   render() {
@@ -19,5 +20,10 @@ class ImageGalleryItem extends Component {
     );
   }
 }
-
+ImageGalleryItem.propTypes = {
+  id: PropTypes.number.isRequired,
+  modalUrl: PropTypes.string.isRequired,
+  url: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
+};
 export default ImageGalleryItem;
