@@ -6,7 +6,7 @@ import {
   SearchFormButtonLabel,
   SearchFormInput,
 } from "./styles.module.css";
-
+import PropTypes from "prop-types";
 // const INITIAL_STATE = {
 //   query: "",
 // };
@@ -49,5 +49,7 @@ class SearchBar extends Component {
     );
   }
 }
-
+SearchBar.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};
 export default SearchBar;
