@@ -13,11 +13,16 @@
   align-items: center;
   background-color: rgba(0, 0, 0, 0.8);
   z-index: 1200;
+  overflow: auto;
+  object-fit: contain;
 }
 
 .ModalStyle {
-  /* display: block; */
-  margin: auto;
+  display: flex;
+  /* margin: auto; */
+
   max-width: calc(100vw - 260px);
-  max-height: calc(100vh -186px);
+
+  max-height: calc(100vh - 186px);
+  object-fit: contain;
 }
